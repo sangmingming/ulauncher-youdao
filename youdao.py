@@ -6,8 +6,8 @@ import hashlib
 import time
 import sys
 import requests
-reload(sys)
-sys.setdefaultencoding('utf8')
+import importlib
+importlib.reload(sys)
 
 YOUDAO_DEFAULT_KEYFROM = ('whyliam-wf-1', 'whyliam-wf-2', 'whyliam-wf-3',
                           'whyliam-wf-4', 'whyliam-wf-5', 'whyliam-wf-6',
@@ -76,9 +76,9 @@ def get_youdao_url(query):
 
 
 def get_youdao_old_url(query, youdao_keyfrom, youdao_key):
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
 
-    query = urllib.quote(str(query))
+    query = urllib.parse.quote(str(query))
     url = 'http://fanyi.youdao.com/openapi.do?' + \
         'keyfrom=' + str(youdao_keyfrom) + \
         '&key=' + str(youdao_key) + \
@@ -100,7 +100,7 @@ def truncate(q):
 
 
 def get_youdao_new_url(query, zhiyun_id, zhiyun_key):
-    import urllib
+    import urllib.request, urllib.parse, urllib.error
     import hashlib
     import uuid
 
@@ -114,7 +114,7 @@ def get_youdao_new_url(query, zhiyun_id, zhiyun_key):
         '?appKey=' + str(zhiyun_id) + \
         '&salt=' + str(salt) + \
         '&sign=' + str(sign) + \
-        '&q=' + urllib.quote(query) + \
+        '&q=' + urllib.parse.quote(query) + \
         '&from=auto' + \
         '&to=auto' + \
         '&signType=v3' + \
@@ -170,7 +170,7 @@ def is_English(query):
     # 检查英文翻译中文
     import re
 
-    if re.search(ur"[\u4e00-\u9fa5]+", query):
+    if re.search(r"[\u4e00-\u9fa5]+", query):
         return False
     return True
 
@@ -195,7 +195,7 @@ def get_translation(query, isEnglish, rt):
 def get_phonetic(query, isEnglish, rt):
     # 发音
     items = []
-    if u'basic' in rt.keys():
+    if 'basic' in list(rt.keys()):
         if rt["basic"] != None:
             if rt["basic"].get("phonetic"):
                 title = ""
@@ -216,7 +216,7 @@ def get_phonetic(query, isEnglish, rt):
 def get_explains(query, isEnglish, rt):
     items = []
     # 简明释意
-    if u'basic' in rt.keys():
+    if 'basic' in list(rt.keys()):
         if rt["basic"] != None:
             for i in range(len(rt["basic"]["explains"])):
                 title = rt["basic"]["explains"][i]
@@ -233,7 +233,7 @@ def get_explains(query, isEnglish, rt):
 def get_web_translation(query, isEnglish, rt):
     # 网络翻译
     items = []
-    if u'web' in rt.keys():
+    if 'web' in list(rt.keys()):
         if rt["web"] != None:
             for i in range(len(rt["web"])):
                 titles = rt["web"][i]["value"]
@@ -259,7 +259,7 @@ def translation(query):
     rt = fetch_translation(query)
     errorCode = str(rt.get("errorCode"))
 
-    if ERRORCODE_DICT.has_key(errorCode):
+    if errorCode in ERRORCODE_DICT:
         arg = ['', '', '', '', 'error']
         arg = '$%'.join(arg)
         items.append(dict(
